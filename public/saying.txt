@@ -18,3 +18,4 @@ cloverdefa,老娘買了iPhone15Plus;
 cloverdefa,新入手了一組好玩的分體式無線鍵盤;
 cloverdefa,分體式柱狀排列鍵盤讚;
 cloverdefa,我把四台PI給組成一台叢集電腦了;
+cloverdefa,docker每天pull一下就把qutoa用光了;
