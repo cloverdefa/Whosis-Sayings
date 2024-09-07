@@ -20,3 +20,4 @@ cloverdefa,ansible真方便;
 bill85101,小魔姬每天調戲胖貓;
 bill85101,不婚不生,快樂一生;
 cloverdefa,從VSCode遷徙到NeoVIM;
+cloverdefa,NVIM真香;
