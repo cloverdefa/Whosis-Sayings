@@ -21,3 +21,5 @@ bill85101,小魔姬每天調戲胖貓;
 bill85101,不婚不生,快樂一生;
 cloverdefa,從VSCode遷徙到NeoVIM;
 cloverdefa,NVIM真香;
+cloverdefa,大家更新iOS了沒?;
+cloverdefa,今天是我的生日;
