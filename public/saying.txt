@@ -23,4 +23,4 @@ cloverdefa,從VSCode遷徙到NeoVIM;
 cloverdefa,NVIM真香;
 cloverdefa,大家更新iOS了沒?;
 cloverdefa,今天是我的生日;
-bill85101,忍一時越想越氣,退一步越想越虧;
+bill85101,忍一時越想越氣  退一步越想越虧;
