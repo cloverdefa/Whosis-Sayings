@@ -36,6 +36,11 @@
         border-radius: 50%;
       }
 
+      pre {
+        white-space: pre-wrap; /* 支援換行符 */
+        word-break: break-word; /* 長字元換行 */
+        margin: 0; /* 移除預設的外間距 */
+      }
     </style>
   </head>
 
@@ -54,8 +59,7 @@
               <p>
                 <strong>{{ name }}</strong> <small>@{{ uname }}</small> <small> · 1m</small>
                 <br>
-                <span>{{ message }}</span>
-                <!-- 了解 -->
+                <pre>{{ message }}</pre> <!-- 使用 pre 來支援多行顯示 -->
               </p>
             </div>
           </div>
@@ -66,3 +70,4 @@
   </body>
 
 </html>
+
