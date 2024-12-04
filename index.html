@@ -15,7 +15,12 @@
       }
     </script>
     <style>
-      html {
+      html, body {
+        height: 100%; /* 讓頁面高度充滿視窗 */
+        margin: 0; /* 移除默認的外邊距 */
+        display: flex; /* 設定為flex布局 */
+        justify-content: center; /* 水平居中 */
+        align-items: center; /* 垂直居中 */
         background-color: #18232c;
       }
 
@@ -24,13 +29,13 @@
       }
 
       .box {
-        margin: 10% 20% auto 20%;
-        font-size: 40px;
         background-color: #18232c; /* 設定與背景一致的顏色 */
         color: white; /* 文字顏色設為白色以便可讀 */
         padding: 20px;
         border-radius: 10px;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        max-width: 600px; /* 限制寬度 */
+        width: 100%; /* 寬度 100% 使其可根據屏幕調整 */
       }
 
       .content small {
