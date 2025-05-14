@@ -13,7 +13,7 @@ id_rsa
 # 忽略資料夾
 .venv/
 .vscode/
-.mypy_cache
+.mypy_cache/
 build/
 dist/
 
