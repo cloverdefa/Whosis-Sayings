@@ -1,84 +1,109 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
-
   <head>
     <meta charset="utf-8" />
-    <title>┌(┌^o^)┐</title>
+    <title>聊天室樣式</title>
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bulma/0.8.2/css/bulma.min.css" />
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" />
     <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Rubik&display=swap" />
     <script src="//cdnjs.cloudflare.com/ajax/libs/vue/2.6.11/vue.min.js"></script>
-    <script type="text/javascript">
-      // HTTP => HTTPS
-      if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
-        location.protocol = 'https:'
-      }
-    </script>
     <style>
       html, body {
-        height: 100%; /* 讓頁面高度充滿視窗 */
-        margin: 0; /* 移除默認的外邊距 */
-        display: flex; /* 設定為flex布局 */
-        justify-content: center; /* 水平居中 */
-        align-items: center; /* 垂直居中 */
+        height: 100%;
+        margin: 0;
         background-color: #18232c;
+        font-family: 'Rubik', sans-serif;
       }
 
       [v-cloak] {
         display: none;
       }
 
-      .box {
-        background-color: #18232c; /* 設定與背景一致的顏色 */
-        color: white; /* 文字顏色設為白色以便可讀 */
-        padding: 24px; /* 增大內邊距 */
-        border-radius: 12px; /* 增大圓角 */
-        border: none; /* 確保無邊框 */
-        max-width: 840px; /* 增加最大寬度 */
-        width: 100%; /* 寬度 100% 使其可根據屏幕調整 */
-        font-size: 42px; /* 增加字型大小 */
+      .chat-container {
+        max-width: 640px;
+        margin: 0 auto;
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        overflow-y: auto;
       }
 
-      .content small {
-        color: gray;
+      .message-row {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 16px;
       }
 
-      #icon>img {
+      .media-left {
+        margin-right: 12px;
+      }
+
+      .message-bubble {
+        background-color: #2a3744;
+        color: white;
+        padding: 16px;
+        border-radius: 16px;
+        max-width: 100%;
+        word-wrap: break-word;
+        font-size: 18px;
+        line-height: 1.5;
+        position: relative;
+      }
+
+      .message-header {
+        font-weight: bold;
+        margin-bottom: 4px;
+      }
+
+      .message-meta {
+        font-size: 0.8rem;
+        color: #bbb;
+        margin-left: 8px;
+      }
+
+      .message-bubble pre {
+        margin: 0;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+
+      #icon img {
         border-radius: 50%;
       }
 
-      pre {
-        white-space: pre-wrap; /* 支援換行符 */
-        word-break: break-word; /* 長字元換行 */
-        margin: 0; /* 移除預設的外間距 */
+      figure.image.is-64x64 {
+        min-width: 64px;
+        min-height: 64px;
       }
     </style>
+    <script>
+      // 強制轉 HTTPS（非 localhost）
+      if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+        location.protocol = 'https:'
+      }
+    </script>
   </head>
 
   <body>
-    <div id="app" class="container">
-      <div class="box" v-cloak>
-        <article class="media">
-          <div class="media-left">
-            <figure class="image is-64x64" id="icon">
-              <img :src="avatar" alt="Image">
-              <span class="icon"></span>
-            </figure>
+    <div id="app" class="chat-container" v-cloak>
+      <div class="message-row"
+           v-for="(m, i) in messages"
+           :key="i">
+        <figure class="image is-64x64 media-left">
+          <img :src="m.avatar" alt="avatar">
+        </figure>
+        <div class="message-bubble">
+          <div class="message-header">
+            {{ m.name }}
+            <span class="message-meta">@{{ m.uname }} · {{ relativeTime(m.ts) }}</span>
           </div>
-          <div class="media-content">
-            <div class="content">
-              <p>
-                <strong>{{ name }}</strong> <small>@{{ uname }}</small> <small> · 1m</small>
-                <br>
-                <pre>{{ message }}</pre> <!-- 使用 pre 來支援多行顯示 -->
-              </p>
-            </div>
-          </div>
-        </article>
+          <pre>{{ m.text }}</pre>
+        </div>
       </div>
     </div>
+
     <script src="public/main.js"></script>
   </body>
-
 </html>
 
