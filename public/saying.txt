@@ -76,9 +76,9 @@ hirakujira,女人女人，累人累人;
 hirakujira,三十歲前：守身如玉飢餓行銷
 三十歲後：如狼似虎大甩賣;
 
-cloverdefa,老娘買了iPhone15Plus,
-老爸買了iPhone16Pro,
-老弟買了iPhone16ProMax,
+cloverdefa,老娘買了iPhone15Plus，
+老爸買了iPhone16Pro，
+老弟買了iPhone16ProMax，
 
 全家只剩下我還在用最老的iPhone12;
 
