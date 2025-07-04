@@ -1,109 +1,152 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
-  <head>
-    <meta charset="utf-8" />
-    <title>聊天室樣式</title>
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bulma/0.8.2/css/bulma.min.css" />
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" />
-    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Rubik&display=swap" />
-    <script src="//cdnjs.cloudflare.com/ajax/libs/vue/2.6.11/vue.min.js"></script>
-    <style>
-      html, body {
-        height: 100%;
-        margin: 0;
-        background-color: #18232c;
-        font-family: 'Rubik', sans-serif;
-      }
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>聊天室樣式</title>
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bulma/0.8.2/css/bulma.min.css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" />
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Rubik&display=swap" />
+  <script src="//cdnjs.cloudflare.com/ajax/libs/vue/2.6.11/vue.min.js"></script>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      background-color: #18232c;
+      font-family: 'Rubik', sans-serif;
+      overflow: hidden;
+    }
 
-      [v-cloak] {
-        display: none;
-      }
+    [v-cloak] {
+      display: none;
+    }
 
-      .chat-container {
-        max-width: 640px;
-        margin: 0 auto;
-        padding: 24px;
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-        overflow-y: auto;
-      }
+    .chat-container {
+      max-width: 100%;
+      height: 100%;
+      padding: 16px;
+      box-sizing: border-box;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
 
-      .message-row {
-        display: flex;
-        align-items: flex-start;
-        margin-bottom: 16px;
-      }
+    .message-row {
+      display: flex;
+      align-items: flex-end;
+      margin-bottom: 16px;
+      word-break: break-word;
+    }
 
-      .media-left {
-        margin-right: 12px;
-      }
+    .message-row.right {
+      flex-direction: row-reverse;
+    }
 
+    .message-bubble {
+      position: relative;
+      background-color: #2a3744;
+      color: white;
+      padding: 12px 16px;
+      border-radius: 16px;
+      max-width: 80%;
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+
+    .message-row.right .message-bubble {
+      background-color: #4a90e2;
+    }
+
+    .message-bubble::after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 0;
+      border: 8px solid transparent;
+      top: 10px;
+    }
+
+    .message-row.left .message-bubble::after {
+      left: -16px;
+      border-right-color: #2a3744;
+    }
+
+    .message-row.right .message-bubble::after {
+      right: -16px;
+      border-left-color: #4a90e2;
+    }
+
+    .message-header {
+      font-weight: bold;
+      font-size: 0.9rem;
+      margin-bottom: 4px;
+    }
+
+    .message-meta {
+      font-size: 0.75rem;
+      color: #ccc;
+      margin-left: 6px;
+    }
+
+    .message-bubble pre {
+      margin: 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    #icon img {
+      border-radius: 50%;
+      width: 48px;
+      height: 48px;
+    }
+
+    /* 響應式調整 */
+    @media (max-width: 768px) {
       .message-bubble {
-        background-color: #2a3744;
-        color: white;
-        padding: 16px;
-        border-radius: 16px;
-        max-width: 100%;
-        word-wrap: break-word;
-        font-size: 18px;
-        line-height: 1.5;
-        position: relative;
-      }
-
-      .message-header {
-        font-weight: bold;
-        margin-bottom: 4px;
-      }
-
-      .message-meta {
-        font-size: 0.8rem;
-        color: #bbb;
-        margin-left: 8px;
-      }
-
-      .message-bubble pre {
-        margin: 0;
-        white-space: pre-wrap;
-        word-break: break-word;
+        font-size: 0.95rem;
+        max-width: 90%;
       }
 
       #icon img {
-        border-radius: 50%;
+        width: 40px;
+        height: 40px;
       }
+    }
 
-      figure.image.is-64x64 {
-        min-width: 64px;
-        min-height: 64px;
+    @media (max-width: 480px) {
+      .message-bubble {
+        font-size: 0.9rem;
+        padding: 10px 14px;
       }
-    </style>
-    <script>
-      // 強制轉 HTTPS（非 localhost）
-      if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
-        location.protocol = 'https:'
-      }
-    </script>
-  </head>
+    }
+  </style>
+  <script>
+    if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+      location.protocol = 'https:'
+    }
+  </script>
+</head>
 
-  <body>
-    <div id="app" class="chat-container" v-cloak>
-      <div class="message-row"
-           v-for="(m, i) in messages"
-           :key="i">
-        <figure class="image is-64x64 media-left">
-          <img :src="m.avatar" alt="avatar">
-        </figure>
-        <div class="message-bubble">
-          <div class="message-header">
-            {{ m.name }}
-            <span class="message-meta">@{{ m.uname }} · {{ relativeTime(m.ts) }}</span>
-          </div>
-          <pre>{{ m.text }}</pre>
+<body>
+  <div id="app" class="chat-container" v-cloak>
+    <div v-for="(m, i) in messages"
+         :key="i"
+         class="message-row"
+         :class="{ right: m.uname === selfUname, left: m.uname !== selfUname }">
+      <figure class="image media-left">
+        <img :src="m.avatar" alt="avatar">
+      </figure>
+      <div class="message-bubble">
+        <div class="message-header">
+          {{ m.name }}
+          <span class="message-meta">@{{ m.uname }} · {{ relativeTime(m.ts) }}</span>
         </div>
+        <pre>{{ m.text }}</pre>
       </div>
     </div>
+  </div>
 
-    <script src="public/main.js"></script>
-  </body>
+  <script src="public/main.js"></script>
+</body>
 </html>
 
