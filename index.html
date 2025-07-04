@@ -2,150 +2,136 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>聊天室樣式</title>
+  <title>聊天室</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bulma/0.8.2/css/bulma.min.css" />
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" />
   <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Rubik&display=swap" />
   <script src="//cdnjs.cloudflare.com/ajax/libs/vue/2.6.11/vue.min.js"></script>
+  <script>
+    // 強制使用 HTTPS
+    if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+      location.protocol = 'https:';
+    }
+  </script>
   <style>
     html, body {
-      height: 100%;
       margin: 0;
+      padding: 0;
+      height: 100%;
       background-color: #18232c;
       font-family: 'Rubik', sans-serif;
-      overflow: hidden;
     }
 
     [v-cloak] {
       display: none;
     }
 
-    .chat-container {
-      max-width: 100%;
+    #app {
+      display: flex;
+      justify-content: center;
+      align-items: center;
       height: 100%;
-      padding: 16px;
-      box-sizing: border-box;
+    }
+
+    .chat-scroll-container {
+      width: 100%;
+      max-width: 960px;
+      height: 90vh;
+      overflow-x: auto;
       overflow-y: auto;
+      background-color: #1f2d3a;
+      border-radius: 12px;
+      padding: 1rem;
+      box-sizing: border-box;
+    }
+
+    .chat-box {
       display: flex;
       flex-direction: column;
+      white-space: nowrap;
     }
 
-    .message-row {
-      display: flex;
-      align-items: flex-end;
-      margin-bottom: 16px;
-      word-break: break-word;
-    }
-
-    .message-row.right {
-      flex-direction: row-reverse;
-    }
-
-    .message-bubble {
-      position: relative;
-      background-color: #2a3744;
+    .message {
+      display: inline-block;
+      max-width: 90%;
+      margin: 0.5rem;
       color: white;
-      padding: 12px 16px;
-      border-radius: 16px;
-      max-width: 80%;
-      font-size: 1rem;
-      line-height: 1.5;
     }
 
-    .message-row.right .message-bubble {
-      background-color: #4a90e2;
+    .media {
+      align-items: flex-start;
     }
 
-    .message-bubble::after {
-      content: '';
-      position: absolute;
-      width: 0;
-      height: 0;
-      border: 8px solid transparent;
-      top: 10px;
+    .is-left {
+      flex-direction: row;
     }
 
-    .message-row.left .message-bubble::after {
-      left: -16px;
-      border-right-color: #2a3744;
+    .is-right {
+      flex-direction: row-reverse;
+      text-align: right;
     }
 
-    .message-row.right .message-bubble::after {
-      right: -16px;
-      border-left-color: #4a90e2;
+    .media-left, .media-right {
+      flex-shrink: 0;
     }
 
-    .message-header {
-      font-weight: bold;
-      font-size: 0.9rem;
-      margin-bottom: 4px;
-    }
-
-    .message-meta {
-      font-size: 0.75rem;
-      color: #ccc;
-      margin-left: 6px;
-    }
-
-    .message-bubble pre {
-      margin: 0;
-      white-space: pre-wrap;
+    .message .content {
+      background-color: #3273dc;
+      padding: 0.75rem 1rem;
+      border-radius: 1rem;
+      position: relative;
       word-break: break-word;
     }
 
-    #icon img {
+    .is-right .message .content {
+      background-color: #23d160;
+    }
+
+    .message small {
+      color: #aaa;
+    }
+
+    .image.is-48x48 img {
       border-radius: 50%;
-      width: 48px;
-      height: 48px;
     }
 
-    /* 響應式調整 */
-    @media (max-width: 768px) {
-      .message-bubble {
-        font-size: 0.95rem;
-        max-width: 90%;
+    @media screen and (max-width: 600px) {
+      .message {
+        max-width: 100%;
       }
 
-      #icon img {
-        width: 40px;
-        height: 40px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .message-bubble {
-        font-size: 0.9rem;
-        padding: 10px 14px;
+      .chat-scroll-container {
+        padding: 0.5rem;
       }
     }
   </style>
-  <script>
-    if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
-      location.protocol = 'https:'
-    }
-  </script>
 </head>
-
 <body>
-  <div id="app" class="chat-container" v-cloak>
-    <div v-for="(m, i) in messages"
-         :key="i"
-         class="message-row"
-         :class="{ right: m.uname === selfUname, left: m.uname !== selfUname }">
-      <figure class="image media-left">
-        <img :src="m.avatar" alt="avatar">
-      </figure>
-      <div class="message-bubble">
-        <div class="message-header">
-          {{ m.name }}
-          <span class="message-meta">@{{ m.uname }} · {{ relativeTime(m.ts) }}</span>
+  <div id="app">
+    <div class="chat-scroll-container">
+      <div class="chat-box" v-cloak>
+        <div v-for="msg in messages" :key="msg.ts" :class="['message', 'media', msg.uname === selfUname ? 'is-right' : 'is-left']">
+          <div class="media-left">
+            <figure class="image is-48x48">
+              <img :src="msg.avatar" alt="Avatar">
+            </figure>
+          </div>
+          <div class="media-content">
+            <div class="content">
+              <p>
+                <strong>{{ msg.name }}</strong>
+                <small>@{{ msg.uname }}</small>
+                <small> · {{ relativeTime(msg.ts) }}</small>
+                <br>
+                {{ msg.text }}
+              </p>
+            </div>
+          </div>
         </div>
-        <pre>{{ m.text }}</pre>
       </div>
     </div>
   </div>
-
   <script src="public/main.js"></script>
 </body>
 </html>
