@@ -15,8 +15,9 @@
   new Vue({
     el: '#app',
     data: {
-      sayings,          // 原始句庫
-      messages: []      // 聊天訊息陣列
+      selfUname: 'cloverdefa', // 自己的帳號（用來決定訊息靠右顯示）
+      sayings,                 // 原始句庫
+      messages: []             // 聊天訊息陣列
     },
     methods: {
       // 新增一則隨機訊息
@@ -32,23 +33,23 @@
           ts:    Date.now()
         })
 
-        // 只保留最近 30 則
+        // 最多顯示 30 則
         if (this.messages.length > 30) this.messages.shift()
 
-        // 下一個 tick 後捲到底
+        // 自動捲到最底部
         this.$nextTick(() => {
           const box = this.$el
           box.scrollTop = box.scrollHeight
         })
       },
-      // 簡易「幾分鐘前」字串
+      // 幾分鐘前
       relativeTime (t) {
         const diff = Date.now() - t
         return diff < 60_000 ? '剛剛' : Math.floor(diff / 60_000) + 'm'
       }
     },
     created () {
-      // 立即顯示第一則，之後每 5 秒新增
+      // 初始顯示 + 每 5 秒更新一筆
       this.addRandomMessage()
       setInterval(this.addRandomMessage, 5000)
     }
