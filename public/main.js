@@ -15,11 +15,12 @@
   new Vue({
     el: '#app',
     data: {
-      selfUname: 'cloverdefa', // 自己的帳號
-      sayings,
-      messages: []
+      selfUname: 'cloverdefa', // 自己的帳號（用來決定訊息靠右顯示）
+      sayings,                 // 原始句庫
+      messages: []             // 聊天訊息陣列
     },
     methods: {
+      // 新增一則隨機訊息
       addRandomMessage () {
         const [uname, msg] = this.sayings[Math.floor(Math.random() * this.sayings.length)].split(',')
         const info = gravatar[uname] || { name: uname, avatar: '00000000000000000000000000000000' }
@@ -32,21 +33,23 @@
           ts:    Date.now()
         })
 
+        // 最多顯示 30 則
         if (this.messages.length > 30) this.messages.shift()
 
-        // 自動捲到最右下角
+        // 自動捲到最底部
         this.$nextTick(() => {
-          const container = this.$el.querySelector('.chat-scroll-container')
-          container.scrollTop = container.scrollHeight
-          container.scrollLeft = container.scrollWidth
+          const box = this.$el
+          box.scrollTop = box.scrollHeight
         })
       },
+      // 幾分鐘前
       relativeTime (t) {
         const diff = Date.now() - t
         return diff < 60_000 ? '剛剛' : Math.floor(diff / 60_000) + 'm'
       }
     },
     created () {
+      // 初始顯示 + 每 5 秒更新一筆
       this.addRandomMessage()
       setInterval(this.addRandomMessage, 5000)
     }

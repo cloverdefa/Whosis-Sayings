@@ -96,4 +96,5 @@ cloverdefa,大家更新iOS了沒?;
 
 cloverdefa,今天是我的生日;
 
-cloverdefa,AI越來越廣泛;
+cloverdefa,AI越來越廣泛，
+提高不少效率;
