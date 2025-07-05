@@ -139,7 +139,7 @@
       <div class="message-bubble">
         <div class="message-header">
           {{ m.name }}
-          <span class="message-meta">@{{ m.uname }} · {{ relativeTime(m.ts) }}</span>
+          <span class="message-meta">{{ relativeTime(m.ts) }}</span>
         </div>
         <pre>{{ m.text }}</pre>
       </div>
