@@ -49,9 +49,9 @@
       }
     },
     created () {
-      // 初始顯示 + 每 5 秒更新一筆
+      // 初始顯示 + 每 10 秒更新一筆
       this.addRandomMessage()
-      setInterval(this.addRandomMessage, 5000)
+      setInterval(this.addRandomMessage, 10000)
     }
   })
 })()
