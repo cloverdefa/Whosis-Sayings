@@ -1,5 +1,7 @@
 /* global Vue */
 ;(async () => {
+  const { createApp, ref, onMounted, nextTick } = Vue
+
   // 使用者頭像/暱稱索引
   const gravatar = {
     hirakujira: { name: 'DK',      avatar: 'bf73e08d8bc1db95b62f02d50f8a03e9' },
@@ -12,47 +14,52 @@
   const txt = await (await fetch('public/saying.txt')).text()
   const sayings = txt.split(';').map(s => s.trim()).filter(Boolean)
 
-  new Vue({
-    el: '#app',
-    data: {
-      selfUname: 'cloverdefa', // 自己的帳號（用來決定訊息靠右顯示）
-      sayings,                 // 原始句庫
-      messages: []             // 聊天訊息陣列
-    },
-    methods: {
-      // 新增一則隨機訊息
-      addRandomMessage () {
-        const [uname, msg] = this.sayings[Math.floor(Math.random() * this.sayings.length)].split(',')
+  const App = {
+    setup () {
+      const selfUname = ref('cloverdefa')
+      const sayingsRef = ref(sayings)
+      const messages = ref([])
+
+      function addRandomMessage () {
+        const entry = sayingsRef.value[Math.floor(Math.random() * sayingsRef.value.length)]
+        if (!entry) return
+        const parts = entry.split(',')
+        const uname = parts[0]
+        const msg = parts.slice(1).join(',')
         const info = gravatar[uname] || { name: uname, avatar: '00000000000000000000000000000000' }
 
-        this.messages.push({
+        messages.value.push({
           uname,
           name: info.name,
           avatar: `https://www.gravatar.com/avatar/${info.avatar}`,
-          text:  msg.trim(),
-          ts:    Date.now()
+          text: msg.trim(),
+          ts: Date.now()
         })
 
         // 最多顯示 30 則
-        if (this.messages.length > 30) this.messages.shift()
+        if (messages.value.length > 30) messages.value.shift()
 
         // 自動捲到最底部
-        this.$nextTick(() => {
-          const box = this.$el
-          box.scrollTop = box.scrollHeight
+        nextTick(() => {
+          const box = document.getElementById('app')
+          if (box) box.scrollTop = box.scrollHeight
         })
-      },
-      // 幾分鐘前
-      relativeTime (t) {
+      }
+
+      function relativeTime (t) {
         const diff = Date.now() - t
         return diff < 60_000 ? '剛剛' : Math.floor(diff / 60_000) + 'm'
       }
-    },
-    created () {
-      // 初始顯示 + 每 10 秒更新一筆
-      this.addRandomMessage()
-      setInterval(this.addRandomMessage, 10000)
+
+      onMounted(() => {
+        addRandomMessage()
+        setInterval(addRandomMessage, 10000)
+      })
+
+      return { selfUname, messages, addRandomMessage, relativeTime }
     }
-  })
+  }
+
+  createApp(App).mount('#app')
 })()
 
