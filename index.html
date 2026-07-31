@@ -1,20 +1,24 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>聊天室</title>
-  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bulma/0.8.2/css/bulma.min.css" />
-  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css" />
-  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Rubik&display=swap" />
+
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bulma/0.8.2/css/bulma.min.css">
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Rubik&display=swap">
+
   <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+
   <style>
-    html, body {
+    html,
+    body {
       height: 100%;
       margin: 0;
-      background-color: #18232c;
-      font-family: 'Rubik', sans-serif;
       overflow: hidden;
+      background: #18232c;
+      font-family: 'Rubik', sans-serif;
     }
 
     [v-cloak] {
@@ -22,20 +26,18 @@
     }
 
     .chat-container {
-      max-width: 100%;
-      height: 100%;
-      padding: 16px;
-      box-sizing: border-box;
-      overflow-y: auto;
       display: flex;
       flex-direction: column;
+      height: 100%;
+      padding: 16px;
+      overflow-y: auto;
+      box-sizing: border-box;
     }
 
     .message-row {
       display: flex;
       align-items: center;
       margin-bottom: 16px;
-      word-break: break-word;
     }
 
     .message-row.right {
@@ -44,26 +46,25 @@
 
     .message-bubble {
       position: relative;
-      background-color: #2a3744;
-      color: white;
+      max-width: 80%;
       padding: 12px 16px;
       border-radius: 16px;
-      max-width: 80%;
-      font-size: 1rem;
+      background: #2a3744;
+      color: #fff;
       line-height: 1.5;
     }
 
     .message-row.right .message-bubble {
-      background-color: #4a90e2;
+      background: #4a90e2;
     }
 
     .message-bubble::after {
-      content: '';
+      content: "";
       position: absolute;
+      top: 10px;
       width: 0;
       height: 0;
       border: 8px solid transparent;
-      top: 10px;
     }
 
     .message-row.left .message-bubble::after {
@@ -77,37 +78,51 @@
     }
 
     .message-header {
+      margin-bottom: 6px;
+      font-size: .9rem;
       font-weight: bold;
-      font-size: 0.9rem;
-      margin-bottom: 4px;
     }
 
     .message-meta {
-      font-size: 0.75rem;
-      color: #ccc;
       margin-left: 6px;
+      font-size: .75rem;
+      color: #ccc;
     }
 
-    .message-bubble pre {
+    .message-content {
       margin: 0;
       white-space: pre-wrap;
       word-break: break-word;
     }
 
-    #icon img {
-      border-radius: 50%;
-      width: 48px;
-      height: 48px;
+    .message-content del {
+      color: #bfbfbf;
+      opacity: .75;
     }
 
-    /* 響應式調整 */
+    .message-content b,
+    .message-content strong {
+      font-weight: 700;
+    }
+
+    .message-content i,
+    .message-content em {
+      font-style: italic;
+    }
+
+    .image img {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+    }
+
     @media (max-width: 768px) {
       .message-bubble {
-        font-size: 0.95rem;
         max-width: 90%;
+        font-size: .95rem;
       }
 
-      #icon img {
+      .image img {
         width: 40px;
         height: 40px;
       }
@@ -115,11 +130,12 @@
 
     @media (max-width: 480px) {
       .message-bubble {
-        font-size: 0.9rem;
         padding: 10px 14px;
+        font-size: .9rem;
       }
     }
   </style>
+
   <script>
     if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
       location.protocol = 'https:'
@@ -128,25 +144,40 @@
 </head>
 
 <body>
-  <div id="app" class="chat-container" v-cloak>
-    <div v-for="(m, i) in messages"
-         :key="i"
-         class="message-row"
-         :class="{ right: m.uname === selfUname, left: m.uname !== selfUname }">
-      <figure class="image media-left">
-        <img :src="m.avatar" alt="avatar">
-      </figure>
-      <div class="message-bubble">
-        <div class="message-header">
-          {{ m.name }}
-          <span class="message-meta">{{ relativeTime(m.ts) }}</span>
-        </div>
-        <pre>{{ m.text }}</pre>
+
+<div id="app" class="chat-container" v-cloak>
+
+  <div
+    v-for="(m, i) in messages"
+    :key="i"
+    class="message-row"
+    :class="{ right: m.uname === selfUname, left: m.uname !== selfUname }">
+
+    <figure class="image media-left">
+      <img :src="m.avatar" :alt="m.name">
+    </figure>
+
+    <div class="message-bubble">
+
+      <div class="message-header">
+        {{ m.name }}
+        <span class="message-meta">
+          {{ relativeTime(m.ts) }}
+        </span>
       </div>
+
+      <div
+        class="message-content"
+        v-html="m.text">
+      </div>
+
     </div>
+
   </div>
 
-  <script src="public/main.js"></script>
+</div>
+
+<script src="public/main.js"></script>
+
 </body>
 </html>
-
