@@ -4,13 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>聊天室</title>
-
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bulma/0.8.2/css/bulma.min.css">
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
-  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Rubik&display=swap">
-
+  <link rel="stylesheet" href="//fonts.googleapis.com/css2?family=Rubik&display=swap">
   <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-
   <style>
     html,
     body {
@@ -20,11 +17,9 @@
       background: #18232c;
       font-family: 'Rubik', sans-serif;
     }
-
     [v-cloak] {
       display: none;
     }
-
     .chat-container {
       display: flex;
       flex-direction: column;
@@ -33,17 +28,28 @@
       overflow-y: auto;
       box-sizing: border-box;
     }
-
     .message-row {
       display: flex;
       align-items: center;
       margin-bottom: 16px;
     }
-
     .message-row.right {
       flex-direction: row-reverse;
     }
-
+    /* 修正：頭像加上 flex-shrink: 0，避免在窄螢幕或長訊息時被壓扁變形 */
+    .message-avatar {
+      flex-shrink: 0;
+      margin: 0 8px;
+    }
+    .message-avatar img {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: block;
+      /* 圖片抓取失敗時，至少維持圓形背景不塌陷 */
+      background: #3a4753;
+      object-fit: cover;
+    }
     .message-bubble {
       position: relative;
       max-width: 80%;
@@ -53,11 +59,9 @@
       color: #fff;
       line-height: 1.5;
     }
-
     .message-row.right .message-bubble {
       background: #4a90e2;
     }
-
     .message-bubble::after {
       content: "";
       position: absolute;
@@ -66,68 +70,51 @@
       height: 0;
       border: 8px solid transparent;
     }
-
     .message-row.left .message-bubble::after {
       left: -16px;
       border-right-color: #2a3744;
     }
-
     .message-row.right .message-bubble::after {
       right: -16px;
       border-left-color: #4a90e2;
     }
-
     .message-header {
       margin-bottom: 6px;
       font-size: .9rem;
       font-weight: bold;
     }
-
     .message-meta {
       margin-left: 6px;
       font-size: .75rem;
       color: #ccc;
     }
-
     .message-content {
       margin: 0;
       white-space: pre-wrap;
       word-break: break-word;
     }
-
     .message-content del {
       color: #bfbfbf;
       opacity: .75;
     }
-
     .message-content b,
     .message-content strong {
       font-weight: 700;
     }
-
     .message-content i,
     .message-content em {
       font-style: italic;
     }
-
-    .image img {
-      width: 48px;
-      height: 48px;
-      border-radius: 50%;
-    }
-
     @media (max-width: 768px) {
       .message-bubble {
         max-width: 90%;
         font-size: .95rem;
       }
-
-      .image img {
+      .message-avatar img {
         width: 40px;
         height: 40px;
       }
     }
-
     @media (max-width: 480px) {
       .message-bubble {
         padding: 10px 14px;
@@ -135,49 +122,40 @@
       }
     }
   </style>
-
   <script>
-    if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+    // 修正：只有在 http 協定時才強制升級為 https，
+    // 避免 file:// 本機開啟測試時被誤判並導致頁面打不開
+    if (location.protocol === 'http:' && location.hostname !== 'localhost') {
       location.protocol = 'https:'
     }
   </script>
 </head>
-
 <body>
-
 <div id="app" class="chat-container" v-cloak>
-
   <div
-    v-for="(m, i) in messages"
-    :key="i"
+    v-for="m in messages"
+    :key="m.id"
     class="message-row"
     :class="{ right: m.uname === selfUname, left: m.uname !== selfUname }">
-
-    <figure class="image media-left">
-      <img :src="m.avatar" :alt="m.name">
+    <figure class="message-avatar">
+      <img :src="m.avatar" :alt="m.name" loading="lazy">
     </figure>
-
     <div class="message-bubble">
-
       <div class="message-header">
         {{ m.name }}
         <span class="message-meta">
           {{ relativeTime(m.ts) }}
         </span>
       </div>
-
       <div
         class="message-content"
         v-html="m.text">
       </div>
-
     </div>
-
   </div>
-
 </div>
-
 <script src="public/main.js"></script>
-
 </body>
 </html>
+
+
