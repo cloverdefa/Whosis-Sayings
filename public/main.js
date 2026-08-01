@@ -4,17 +4,18 @@
 
   // 使用者頭像/暱稱索引
   const gravatar = {
-    hirakujira: { name: 'DK', avatar: 'bf73e08d8bc1db95b62f02d50f8a03e9' },
-    cloverdefa: { name: 'DAST', avatar: '8cf3d8725d034584f237753022279119' },
-    bill85101: { name: '魔王', avatar: '9e202866b38b7255f282beb005576731' },
-    Shawn_N: { name: '賽瑞福', avatar: '34624582cd585ba65e5b5368c84cb1a2' }
+    cloverdefa: { name: 'DAST', avatar: 'cloverdefa' },
+    dk: { name: 'DK', avatar: 'dk' },
+    samwumobile: { name: '魔王', avatar: 'samwumobile' },
+    sin: { name: '賽瑞福', avatar: 'sin' }
   }
 
-  const DEFAULT_AVATAR_HASH = '00000000000000000000000000000000'
+  const DEFAULT_AVATAR_FILE = 'default'
 
-  // 修正：Gravatar 網址補上尺寸與預設圖參數，避免抓不到圖時顯示過小/破圖
-  function gravatarUrl (hash) {
-    return `https://www.gravatar.com/avatar/${hash}?s=96&d=identicon`
+  // 改用本地圖示，放在 /public/icons/<uname>.webp
+  // 找不到對應圖片時，img 的 onerror 會 fallback 到 default.webp（見下方 template 綁定）
+  function avatarUrl (fileName) {
+    return `public/icons/${fileName}.webp`
   }
 
   // 修正：訊息內容原本用 v-html 直接注入未經清洗的文字，是明顯的 XSS 風險。
@@ -78,13 +79,13 @@
         const msg = parts.slice(1).join(',').trim()
         if (!msg) return
 
-        const info = gravatar[uname] || { name: uname, avatar: DEFAULT_AVATAR_HASH }
+        const info = gravatar[uname] || { name: uname, avatar: DEFAULT_AVATAR_FILE }
 
         messages.value.push({
           id: nextId++,
           uname,
           name: info.name,
-          avatar: gravatarUrl(info.avatar),
+          avatar: avatarUrl(info.avatar),
           text: sanitizeHtml(msg),
           ts: Date.now()
         })
