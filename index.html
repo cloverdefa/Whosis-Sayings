@@ -138,7 +138,11 @@
     class="message-row"
     :class="{ right: m.uname === selfUname, left: m.uname !== selfUname }">
     <figure class="message-avatar">
-      <img :src="m.avatar" :alt="m.name" loading="lazy">
+      <img
+        :src="m.avatar"
+        :alt="m.name"
+        loading="lazy"
+        @error="$event.target.src = 'public/icons/default.webp'">
     </figure>
     <div class="message-bubble">
       <div class="message-header">
