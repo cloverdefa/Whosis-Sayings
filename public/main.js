@@ -4,10 +4,10 @@
 
   // 使用者頭像/暱稱索引
   const gravatar = {
-    hirakujira: { name: 'DK', avatar: 'hirakujira' },
     cloverdefa: { name: 'DAST', avatar: 'cloverdefa' },
-    bill85101: { name: '魔王', avatar: 'bill85101' },
-    Shawn_N: { name: '賽瑞福', avatar: 'Shawn_N' }
+    dk: { name: 'DK', avatar: 'dk' },
+    samwumobile: { name: '魔王', avatar: 'samwumobile' },
+    sin: { name: '賽瑞福', avatar: 'sin' }
   }
 
   const DEFAULT_AVATAR_FILE = 'default'
