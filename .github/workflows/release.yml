@@ -63,6 +63,11 @@ jobs:
 
           # ----------------------------------------------------------
           # Find latest semantic version tag
+          #
+          # Supported:
+          #   v1.0.0
+          #   v1.1.0
+          #   v2.0.0
           # ----------------------------------------------------------
 
           latest_tag="$(
@@ -72,31 +77,166 @@ jobs:
             tail -n 1 || true
           )"
 
+          echo "Latest tag: ${latest_tag:-none}"
+
           # ----------------------------------------------------------
           # Determine release type
           #
-          # PR merge:
-          #   patch
+          # workflow_dispatch:
+          #   Use manually selected release type.
           #
-          # Manual:
-          #   patch / minor / major
+          # pull_request:
+          #   Analyze commits since latest release.
+          #
+          # Priority:
+          #   major > minor > patch > none
           # ----------------------------------------------------------
 
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            release_type="${{ inputs.release_type }}"
-          else
-            release_type="patch"
-          fi
 
-          echo "Latest tag: ${latest_tag:-none}"
-          echo "Release type: $release_type"
+            release_type="${{ inputs.release_type }}"
+
+            echo "Trigger: workflow_dispatch"
+            echo "Release type: $release_type"
+
+          else
+
+            release_type="none"
+
+            echo "Trigger: pull_request"
+            echo "Analyzing commits since latest release..."
+
+            # --------------------------------------------------------
+            # Get commits
+            #
+            # Use ASCII Record Separator (0x1E) to separate commits.
+            # This prevents commit body lines from being treated as
+            # independent commits.
+            # --------------------------------------------------------
+
+            if [ -n "$latest_tag" ]; then
+
+              commits="$(
+                git log \
+                  "$latest_tag..HEAD" \
+                  --pretty=format:'%x1e%s%n%b'
+              )"
+
+            else
+
+              commits="$(
+                git log \
+                  --pretty=format:'%x1e%s%n%b'
+              )"
+
+            fi
+
+            # --------------------------------------------------------
+            # Analyze each commit
+            # --------------------------------------------------------
+
+            while IFS= read -r commit; do
+
+              commit="${commit#"${commit%%[![:space:]]*}"}"
+              commit="${commit%"${commit##*[![:space:]]}"}"
+
+              [ -z "$commit" ] && continue
+
+              echo "----------------------------------------"
+              echo "Commit:"
+              echo "$commit"
+
+              # ------------------------------------------------------
+              # MAJOR
+              #
+              # Examples:
+              #   feat!: ...
+              #   fix!: ...
+              #   refactor!: ...
+              #   feat(scope)!: ...
+              #
+              # Also:
+              #   BREAKING CHANGE:
+              # ------------------------------------------------------
+
+              if \
+                printf '%s\n' "$commit" |
+                grep -qE '^[a-zA-Z0-9_-]+(\([^)]*\))?!:' ||
+                printf '%s\n' "$commit" |
+                grep -q 'BREAKING CHANGE:'
+              then
+                release_type="major"
+                continue
+              fi
+
+              # ------------------------------------------------------
+              # MINOR
+              #
+              # Examples:
+              #   feat: ...
+              #   feat(scope): ...
+              # ------------------------------------------------------
+
+              if printf '%s\n' "$commit" |
+                grep -qE '^feat(\([^)]*\))?:'
+              then
+
+                if [ "$release_type" != "major" ]; then
+                  release_type="minor"
+                fi
+
+                continue
+              fi
+
+              # ------------------------------------------------------
+              # PATCH
+              #
+              # Examples:
+              #   fix: ...
+              #   fix(scope): ...
+              # ------------------------------------------------------
+
+              if printf '%s\n' "$commit" |
+                grep -qE '^fix(\([^)]*\))?:'
+              then
+
+                if [ "$release_type" = "none" ]; then
+                  release_type="patch"
+                fi
+
+                continue
+              fi
+
+            done < <(
+              printf '%s' "$commits" |
+              tr '\036' '\n'
+            )
+
+            echo "----------------------------------------"
+            echo "Detected release type: $release_type"
+
+            # --------------------------------------------------------
+            # No release required
+            # --------------------------------------------------------
+
+            if [ "$release_type" = "none" ]; then
+
+              echo "No release required."
+
+              echo "should_release=false" >> "$GITHUB_OUTPUT"
+
+              exit 0
+            fi
+          fi
 
           # ----------------------------------------------------------
           # Calculate next version
           # ----------------------------------------------------------
 
           if [ -z "$latest_tag" ]; then
+
             case "$release_type" in
+
               patch)
                 major=0
                 minor=1
@@ -119,13 +259,17 @@ jobs:
                 echo "::error::Invalid release type: $release_type"
                 exit 1
                 ;;
+
             esac
+
           else
+
             version="${latest_tag#v}"
 
             IFS='.' read -r major minor patch <<< "$version"
 
             case "$release_type" in
+
               patch)
                 patch=$((patch + 1))
                 ;;
@@ -145,6 +289,7 @@ jobs:
                 echo "::error::Invalid release type: $release_type"
                 exit 1
                 ;;
+
             esac
           fi
 
@@ -160,9 +305,16 @@ jobs:
             exit 1
           fi
 
+          echo "Release type: $release_type"
           echo "Next version: $version"
           echo "Next tag: $tag"
 
+          # ----------------------------------------------------------
+          # GitHub Actions outputs
+          # ----------------------------------------------------------
+
+          echo "should_release=true" >> "$GITHUB_OUTPUT"
+          echo "release_type=$release_type" >> "$GITHUB_OUTPUT"
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
 
@@ -171,10 +323,11 @@ jobs:
       # ============================================================
 
       - name: Create Release
+        if: steps.version.outputs.should_release == 'true'
         uses: softprops/action-gh-release@v2
         with:
           token: ${{ secrets.RELEASE_TOKEN }}
           tag_name: ${{ steps.version.outputs.tag }}
           target_commitish: main
-          name: v${{ steps.version.outputs.version }}
+          name: ${{ steps.version.outputs.tag }}
           generate_release_notes: true
