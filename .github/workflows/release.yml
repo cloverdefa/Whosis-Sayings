@@ -47,7 +47,6 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       # ============================================================
       # Get next version
@@ -326,7 +325,6 @@ jobs:
         if: steps.version.outputs.should_release == 'true'
         uses: softprops/action-gh-release@v2
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ steps.version.outputs.tag }}
           target_commitish: main
           name: ${{ steps.version.outputs.tag }}
