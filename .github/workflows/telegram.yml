@@ -42,7 +42,5 @@ jobs:
             🏷️ 版本
             ${{ steps.release.outputs.tag }}
 
-            🔗 查看 Release
-            ${{ steps.release.outputs.url }}
-
-
+            📝 變更內容 
+            ${{ steps.release.outputs.changes }}
