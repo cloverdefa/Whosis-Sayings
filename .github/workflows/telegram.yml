@@ -1,12 +1,15 @@
 name: Telegram Notification
+
 on:
   workflow_run:
     workflows:
       - Release
     types:
       - completed
+
 permissions:
   contents: read
+
 jobs:
   notify:
     name: Send Telegram Notification
@@ -34,28 +37,8 @@ jobs:
         id: changes
         run: |
           tag="${{ steps.release.outputs.tag }}"
-
-          # 沿著 commit 歷史往回找上一個 tag,不依賴 tag 建立時間
-          prev_tag=$(git describe --tags --abbrev=0 "${tag}^" 2>/dev/null || echo "")
-
-          if [ -n "$prev_tag" ]; then
-            range="${prev_tag}..${tag}"
-          else
-            range="${tag}"
-          fi
-
-          commits=$(git log "$range" --pretty=format:'%H')
-
-          log=""
-          while IFS= read -r hash; do
-            [ -n "$hash" ] && log="${log}https://github.com/${GITHUB_REPOSITORY}/commit/${hash}"$'\n'
-          done <<< "$commits"
-
-          {
-            echo "changes<<EOF"
-            printf '%s' "$log"
-            echo "EOF"
-          } >> "$GITHUB_OUTPUT"
+          commit_sha=$(git rev-list -n 1 "$tag")
+          echo "changes=https://github.com/${GITHUB_REPOSITORY}/commit/${commit_sha}" >> "$GITHUB_OUTPUT"
 
       - name: Send Telegram notification
         uses: appleboy/telegram-action@v1
@@ -69,4 +52,3 @@ jobs:
             ${{ steps.release.outputs.tag }}
             📝 變更內容
             ${{ steps.changes.outputs.changes }}
-
