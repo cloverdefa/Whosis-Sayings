@@ -19,6 +19,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7
         with:
+          ref: ${{ github.event.workflow_run.head_sha }}
           fetch-depth: 0
 
       - name: Get release tag
@@ -36,14 +37,26 @@ jobs:
       - name: Get commit changes
         id: changes
         run: |
-          tag="${{ steps.release.outputs.tag }}"
-          commit_sha=$(git rev-list -n 1 "$tag")
-          echo "changes=https://github.com/${GITHUB_REPOSITORY}/commit/${commit_sha}" >> "$GITHUB_OUTPUT"
+          sha="${{ github.event.workflow_run.head_sha }}"
+          subject=$(git log -1 --pretty=%s "$sha")
+          body=$(git log -1 --pretty=%b "$sha")
+      
+          {
+            echo "message<<EOF"
+            echo "$subject"
+            if [ -n "$body" ]; then
+              echo ""
+              echo "$body"
+            fi
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+      
+          echo "url=https://github.com/${GITHUB_REPOSITORY}/commit/${sha}" >> "$GITHUB_OUTPUT"
 
       - name: Send Telegram notification
         uses: appleboy/telegram-action@v1
         with:
-          to: ${{ secrets.GROUPS_ID }}
+          to: ${{ secrets.TELEGRAM_ID }}
           token: ${{ secrets.TELEGRAM_TOKEN }}
           message: |
             📦 儲存庫
@@ -51,4 +64,6 @@ jobs:
             🏷️ 版本
             ${{ steps.release.outputs.tag }}
             📝 變更內容
-            ${{ steps.changes.outputs.changes }}
+            ${{ steps.changes.outputs.message }}
+            🔗 ${{ steps.changes.outputs.url }}
+
